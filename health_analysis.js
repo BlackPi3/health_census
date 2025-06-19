@@ -1,8 +1,10 @@
 const addPatientButton = document.getElementById("addPatient");
 addPatientButton.addEventListener('click', addPatient);
 
-const report = document.getElementById("report");
 const btnSearch = document.getElementById('btnSearch');
+btnSearch.addEventListener('click', searchCondition);
+
+const report = document.getElementById("report");
 const patients = [];
 
 function addPatient() {
@@ -69,4 +71,37 @@ function generateReport() {
             report.innerHTML += `&nbsp;&nbsp;${condition}: ${genderConditionsCount[gender][condition]}<br>`;
         }
     }
+}
+
+function searchCondition() {
+    const input = document.getElementById("conditionInput").value;
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = '';
+
+    fetch('./health_analysis.json')
+        .then(response => response.json())
+        .then(data => {
+            debugger;
+            const condition = data.conditions.find(c => c.name.toLowerCase() === input.toLowerCase());
+
+            if (condition) {
+                const symptoms = condition.symptoms.join(', ');
+                const prevention = condition.prevention.join(', ');
+                const treatment = condition.treatment;
+
+                resultDiv.innerHTML += `<h2>${condition.name}</h2>`;
+                resultDiv.innerHTML += `<img src=${condition.imagesrc}>`;
+                resultDiv.innerHTML += `<p><strong>Symptoms:</strong> ${symptoms}</p>`;
+                resultDiv.innerHTML += `<p><strong>Prevention:</strong> ${prevention}</p>`;
+                resultDiv.innerHTML += `<p><strong>Treatment:</strong> ${treatment}</p>`;
+            } else {
+                resultDiv.innerHTML = 'Condition not found.';
+            }
+
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            resultDiv.innerHTML = 'An error occurred while fetching data.';
+        })
+
 }
